@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>conexão — o blog da amizade</title>
+<meta name="description" content="Conexão: dicas, ciência, relatos e reflexões sobre amizade.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fffaf3; --ink:#161616; --muted:#6d6a66; --line:#ece4d8; --card:#fff; --soft:#f6efe4;
+  --coral:#ff6b4a; --teal:#00a6a6; --lilac:#8b7cf6; --yellow:#ffd23f; --green:#2fbf71; --pink:#ff5fa2;
+  --side:250px;
+}
+body.dark{--bg:#0f0f12;--ink:#f3f1ee;--muted:#a19d97;--line:#26262c;--card:#18181d;--soft:#1f1f25}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Space Grotesk',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;transition:background .2s,color .2s}
+a{color:inherit;text-decoration:none;cursor:pointer}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer}
+.fr{font-family:'Fraunces',Georgia,serif}
+
+/* ===== Lateral fixa ===== */
+.side{position:fixed;left:0;top:0;bottom:0;width:var(--side);background:var(--card);border-right:1px solid var(--line);padding:26px 20px;display:flex;flex-direction:column;z-index:60;overflow:auto}
+.logo{font-family:'Fraunces';font-weight:800;font-size:32px;letter-spacing:-1px;cursor:pointer;line-height:1}
+.logo i{font-style:normal;background:linear-gradient(90deg,var(--coral),var(--lilac));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo small{display:block;font-family:'Space Grotesk';font-size:12px;color:var(--muted);font-weight:500;margin-top:6px;letter-spacing:.3px}
+.snav{margin-top:28px;display:flex;flex-direction:column;gap:4px}
+.snav button{display:flex;align-items:center;gap:12px;background:none;border:0;padding:11px 12px;border-radius:12px;font-size:15px;font-weight:600;color:var(--muted);text-align:left}
+.snav button:hover{background:var(--soft);color:var(--ink)}
+.snav button.active{background:var(--ink);color:var(--bg)}
+.snav .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.side-foot{margin-top:auto;padding-top:20px;display:flex;flex-direction:column;gap:10px}
+.toggle{display:flex;justify-content:space-between;align-items:center;background:var(--soft);border:0;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;color:var(--ink)}
+.countdown{background:linear-gradient(135deg,var(--coral),var(--pink));color:#fff;border-radius:14px;padding:14px;font-size:13px}
+.countdown b{font-family:'Fraunces';font-size:30px;display:block;line-height:1.1}
+
+/* ===== Barra mobile ===== */
+.mtop{display:none;position:sticky;top:0;z-index:60;background:var(--card);border-bottom:1px solid var(--line)}
+.mtop .row1{display:flex;justify-content:space-between;align-items:center;padding:12px 16px}
+.mtop .logo{font-size:26px}
+.mtop .logo small{display:none}
+.mtabs{display:flex;gap:6px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none}
+.mtabs::-webkit-scrollbar{display:none}
+.mtabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:20px;font-weight:600;font-size:13px;white-space:nowrap}
+.mtabs button.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.icon-btn{background:var(--soft);border:0;width:38px;height:38px;border-radius:50%;font-size:16px;color:var(--ink)}
+
+/* ===== Conteúdo ===== */
+.main{margin-left:var(--side);padding:30px 40px 60px;max-width:calc(1180px + var(--side))}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.hello{font-size:14px;color:var(--muted)}
+.hello b{display:block;font-family:'Fraunces';font-size:30px;color:var(--ink);line-height:1.15;margin-top:2px}
+.sbar{display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:30px;padding:4px 4px 4px 16px;min-width:280px}
+.sbar input{border:0;outline:none;background:none;color:var(--ink);flex:1;font-size:14px;font-family:inherit}
+.sbar button{border:0;background:var(--ink);color:var(--bg);border-radius:20px;padding:8px 16px;font-weight:700;font-size:13px}
+
+/* Stories */
+.stories{display:flex;gap:18px;overflow-x:auto;padding:4px 2px 18px;margin-bottom:12px;scrollbar-width:none}
+.stories::-webkit-scrollbar{display:none}
+.story{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:var(--ink);font-size:12px;font-weight:600;min-width:76px}
+.story .ring{width:74px;height:74px;border-radius:50%;padding:3px;background:conic-gradient(var(--coral),var(--yellow),var(--teal),var(--lilac),var(--coral))}
+.story.seen .ring{background:var(--line)}
+.story .in{width:100%;height:100%;border-radius:50%;border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px}
+
+/* Destaque */
+.feature{display:grid;grid-template-columns:1.25fr 1fr;background:var(--card);border:1px solid var(--line);border-radius:24px;overflow:hidden;margin-bottom:34px;cursor:pointer}
+.feature .ph{min-height:360px;position:relative;overflow:hidden}
+.feature .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.feature:hover .ph img{transform:scale(1.04)}
+.feature .tx{padding:34px;display:flex;flex-direction:column;justify-content:center}
+.feature h1{font-family:'Fraunces';font-size:36px;line-height:1.12;margin:12px 0}
+.feature p{color:var(--muted);font-size:16px}
+.badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700;color:#111;align-self:flex-start}
+.meta{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-top:16px;flex-wrap:wrap}
+.mini-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#111;flex-shrink:0}
+
+/* Filtros */
+.filters{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.filters h2{font-family:'Fraunces';font-size:26px}
+.sort{display:flex;background:var(--soft);border-radius:20px;padding:3px}
+.sort button{border:0;background:none;color:var(--muted);padding:7px 14px;border-radius:16px;font-weight:600;font-size:13px}
+.sort button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* Mosaico */
+.masonry{columns:3 280px;column-gap:20px}
+.card{break-inside:avoid;margin-bottom:20px;background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;display:inline-block;width:100%}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.08)}
+.card img{width:100%;object-fit:cover}
+.card .tx{padding:18px 18px 20px}
+.card h3{font-family:'Fraunces';font-size:21px;line-height:1.2;margin:10px 0 6px}
+.card p{font-size:14px;color:var(--muted)}
+.qcard{padding:28px 24px;color:#111;cursor:default}
+.qcard p.q{font-family:'Fraunces';font-size:23px;line-height:1.3;color:#111}
+.qcard small{display:block;margin-top:12px;font-weight:700;font-size:12px;opacity:.7}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+
+/* Mural */
+.mural-form{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:24px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mural-form input,.mural-form textarea,.mural-form select{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:11px 13px;font-family:inherit;font-size:14px;width:100%}
+.mural-form textarea{grid-column:1/-1;min-height:90px}
+.mural-form .colors{grid-column:1/-1;display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+.mural-form .colors label{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent}
+.mural-form .colors input{display:none}
+.mural-form .colors input:checked+label{border-color:var(--ink)}
+.btn{background:var(--ink);color:var(--bg);border:0;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px}
+.btn:hover{opacity:.88}
+.note{break-inside:avoid;display:inline-block;width:100%;margin-bottom:18px;border-radius:6px 18px 18px 18px;padding:20px;color:#111;transform:rotate(var(--r));box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.note p{font-family:'Fraunces';font-size:18px;line-height:1.35}
+.note small{display:block;margin-top:12px;font-weight:700;font-size:12px}
+.note .heart{background:rgba(255,255,255,.55);border:0;border-radius:14px;padding:4px 10px;font-size:12px;font-weight:700;margin-top:10px;color:#111}
+
+/* ===== Matéria ===== */
+.art-hero{position:relative;border-radius:26px;overflow:hidden;min-height:440px;display:flex;align-items:flex-end;margin-bottom:30px}
+.art-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.art-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 25%,rgba(0,0,0,.85))}
+.art-hero .tx{position:relative;z-index:2;padding:36px;color:#fff;max-width:860px}
+.art-hero h1{font-family:'Fraunces';font-size:44px;line-height:1.08;margin:12px 0}
+.art-hero p{font-size:18px;opacity:.9}
+.back{background:none;border:0;color:var(--muted);font-weight:600;font-size:14px;margin-bottom:14px}
+.back:hover{color:var(--ink)}
+.art-wrap{display:grid;grid-template-columns:64px minmax(0,720px) 1fr;gap:30px}
+.share-rail{position:sticky;top:30px;align-self:start;display:flex;flex-direction:column;gap:10px;align-items:center}
+.share-rail button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;font-size:14px}
+.share-rail button:hover{border-color:var(--ink)}
+.share-rail span{font-size:11px;color:var(--muted);font-weight:600}
+.tldr{background:var(--soft);border-radius:18px;padding:20px 22px;margin-bottom:28px}
+.tldr b{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--coral)}
+.tldr ol{margin:10px 0 0 20px}
+.tldr li{padding:3px 0;font-size:16px}
+.content p{font-size:19px;line-height:1.8;margin-bottom:22px}
+.content h2{font-family:'Fraunces';font-size:30px;margin:36px 0 14px;line-height:1.2}
+.content blockquote{background:var(--yellow);color:#111;border-radius:6px 22px 22px 22px;padding:24px 26px;font-family:'Fraunces';font-size:24px;line-height:1.35;margin:30px 0}
+.content ul,.content ol{margin:0 0 22px 22px;font-size:18px;line-height:1.75}
+.content .tip{border:2px dashed var(--teal);border-radius:18px;padding:18px 20px;margin:28px 0}
+.content .tip b{color:var(--teal);font-size:13px;letter-spacing:1px;text-transform:uppercase}
+.content .tip p{font-size:16px;margin:6px 0 0}
+.aside-col{display:flex;flex-direction:column;gap:18px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px}
+.box h4{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.author{display:flex;gap:12px;align-items:center}
+.author .mini-av{width:52px;height:52px;font-size:16px}
+.author b{font-size:16px;display:block}
+.author small{color:var(--muted);font-size:13px}
+.box p.bio{font-size:14px;color:var(--muted);margin-top:10px}
+.toc a{display:block;padding:6px 0;font-size:14px;font-weight:600;border-bottom:1px solid var(--line)}
+.toc a:last-child{border:0}
+.toc a:hover{color:var(--coral)}
+.emojis{display:flex;gap:8px;flex-wrap:wrap;margin:30px 0 10px}
+.emojis button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:30px;padding:9px 15px;font-size:15px;font-weight:600;transition:transform .15s}
+.emojis button:hover{transform:scale(1.06)}
+.emojis button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.tags a{background:var(--soft);padding:6px 13px;border-radius:20px;font-size:13px;font-weight:600}
+.tags a:hover{background:var(--ink);color:var(--bg)}
+.cmts{margin-top:40px}
+.cmts h3{font-family:'Fraunces';font-size:26px;margin-bottom:14px}
+.cmts form{display:grid;gap:10px;margin-bottom:10px}
+.cmts input,.cmts textarea{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:12px 14px;font-family:inherit;font-size:15px}
+.cmts textarea{min-height:90px}
+.cmt{display:flex;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}
+.cmt small{color:var(--muted);margin-left:6px}
+.cmt p{margin-top:3px;font-size:15px}
+.carousel{display:flex;gap:16px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory}
+.carousel .card{min-width:260px;max-width:260px;scroll-snap-align:start;margin:0}
+.carousel .card img{height:150px}
+.progress{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--coral),var(--lilac));width:0;z-index:300}
+
+/* Sobre */
+.about{max-width:760px}
+.about h1{font-family:'Fraunces';font-size:44px;line-height:1.1;margin-bottom:16px}
+.about p{font-size:18px;margin-bottom:18px}
+.team{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+
+/* Story viewer */
+.sv{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;display:none;align-items:center;justify-content:center}
+.sv.open{display:flex}
+.sv-card{width:min(400px,92vw);height:min(700px,86vh);border-radius:22px;position:relative;padding:60px 28px 28px;display:flex;flex-direction:column;justify-content:center;color:#111;overflow:hidden}
+.sv-bars{position:absolute;top:14px;left:14px;right:14px;display:flex;gap:5px}
+.sv-bars span{flex:1;height:3px;background:rgba(0,0,0,.2);border-radius:3px;overflow:hidden}
+.sv-bars i{display:block;height:100%;width:0;background:#111}
+.sv-head{position:absolute;top:26px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14px}
+.sv-head button{background:none;border:0;font-size:26px;color:#111}
+.sv-emoji{font-size:64px;margin-bottom:16px}
+.sv-text{font-family:'Fraunces';font-size:30px;line-height:1.2}
+.sv-sub{margin-top:14px;font-size:16px;opacity:.8}
+.sv-nav{position:absolute;inset:0;display:flex}
+.sv-nav div{flex:1}
+
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,130px);background:var(--ink);color:var(--bg);padding:12px 22px;border-radius:30px;font-weight:600;font-size:14px;transition:transform .3s;z-index:600}
+.toast.show{transform:translate(-50%,0)}
+.up{position:fixed;right:22px;bottom:22px;width:48px;height:48px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);font-size:20px;display:none;z-index:70}
+
+@media(max-width:1200px){.art-wrap{grid-template-columns:56px minmax(0,1fr)}.aside-col{grid-column:2}}
+@media(max-width:900px){
+  .side{display:none}.mtop{display:block}
+  .main{margin-left:0;padding:20px 16px 50px}
+  .feature{grid-template-columns:1fr}.feature .ph{min-height:240px}
+  .feature h1{font-size:28px}.feature .tx{padding:22px}
+  .art-wrap{grid-template-columns:1fr}
+  .share-rail{position:static;flex-direction:row;justify-content:flex-start;flex-wrap:wrap}
+  .aside-col{grid-column:1}
+  .art-hero{min-height:340px}.art-hero h1{font-size:30px}.art-hero .tx{padding:22px}
+  .hello b{font-size:24px}.sbar{min-width:0;width:100%}
+}
+@media(max-width:560px){
+  .mural-form{grid-template-columns:1fr}
+  .team{grid-template-columns:1fr}
+  .content p{font-size:17px}
+  .about h1{font-size:32px}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<aside class="side">
+  <div class="logo" onclick="go('tudo')">cone<i>xão</i><small>o blog da amizade</small></div>
+  <nav class="snav" id="snav"></nav>
+  <div class="side-foot">
+    <div class="countdown" id="countdown"></div>
+    <button class="toggle" id="darkBtn"><span>Modo escuro</span><span id="darkIco">🌙</span></button>
+  </div>
+</aside>
+
+<header class="mtop">
+  <div class="row1">
+    <div class="logo" onclick="go('tudo')">cone<i>xão</i></div>
+    <button class="icon-btn" id="darkBtnM" aria-label="Modo escuro">🌙</button>
+  </div>
+  <div class="mtabs" id="mtabs"></div>
+</header>
+
+<main class="main" id="app"></main>
+
+<div class="sv" id="sv">
+  <div class="sv-card" id="svCard">
+    <div class="sv-bars" id="svBars"></div>
+    <div class="sv-head"><span id="svTitle"></span><button onclick="closeStory()" aria-label="Fechar">×</button></div>
+    <div class="sv-emoji" id="svEmoji"></div>
+    <div class="sv-text" id="svText"></div>
+    <div class="sv-sub" id="svSub"></div>
+    <div class="sv-nav"><div onclick="storyStep(-1)"></div><div onclick="storyStep(1)"></div></div>
+  </div>
+</div>
+
+<button class="up" id="up" aria-label="Voltar ao topo">↑</button>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DADOS ================= */
+const CAT = {
+  dicas:{n:"Dicas",c:"var(--yellow)",e:"💡"},
+  ciencia:{n:"Ciência",c:"var(--teal)",e:"🔬"},
+  relatos:{n:"Relatos",c:"var(--pink)",e:"📖"},
+  reflexoes:{n:"Reflexões",c:"var(--lilac)",e:"💭"},
+  cultura:{n:"Cultura",c:"var(--coral)",e:"🎬"},
+  bemestar:{n:"Bem-estar",c:"var(--green)",e:"🌿"}
+};
+const AU = {
+  nina:{n:"Nina Albuquerque",r:"Editora e criadora do Conexão",i:"NA",c:"var(--yellow)",bio:"Escreve sobre vínculos, rotina e as pequenas coisas que aproximam as pessoas."},
+  davi:{n:"Davi Okamoto",r:"Repórter de ciência",i:"DO",c:"var(--teal)",bio:"Traduz pesquisas de psicologia e neurociência para o dia a dia."},
+  bia:{n:"Bia Sampaio",r:"Cronista e roteirista",i:"BS",c:"var(--pink)",bio:"Coleciona histórias reais (e às vezes inventadas) sobre amizade."},
+  leo:{n:"Léo Martins",r:"Crítico de cultura",i:"LM",c:"var(--coral)",bio:"Assiste a tudo, lê de tudo e escreve sobre as amizades da ficção."}
+};
+const IM=(t,n,w=900,h=600)=>`https://loremflickr.com/${w}/${h}/${t}?lock=${n}`;
+const FB=(n,w=900,h=600)=>`https://picsum.photos/seed/cx${n}/${w}/${h}`;
+
+const POSTS=[
+{id:1,c:"dicas",a:"nina",d:"2026-10-26T08:00",min:5,v:61200,top:true,h:420,
+ t:"10 mensagens para mandar hoje para aquele amigo que você não fala há tempos",
+ s:"A primeira mensagem é sempre a mais difícil. Separamos ideias leves, sem cobrança e prontas para copiar.",
+ img:IM("friends,phone",401),
+ tl:["Mensagens curtas funcionam melhor que textos longos","Evite começar pedindo desculpas pelo sumiço","Termine com um convite concreto, se fizer sentido"],
+ tags:["mensagens","reaproximação","whatsapp"],
+ b:[
+ ["p","Quantas vezes você pensou em alguém, abriu a conversa e fechou sem escrever nada? O medo de parecer estranho depois de tanto tempo é comum — e quase sempre maior do que deveria. Na maioria das vezes, a outra pessoa vai ficar feliz em ser lembrada."],
+ ["h2","Ideias para copiar e adaptar"],
+ ["ol",["\"Passei em frente àquele lugar e lembrei de você. Como você tá?\"","\"Vi isso e pensei na hora em você 😂\" (e mande um meme ou foto)","\"Que saudade das nossas conversas! Bora tomar um café esses dias?\"","\"Ouvi aquela música hoje e voltei 10 anos no tempo.\"","\"Sonhei com a nossa turma. Precisamos marcar um reencontro!\"","\"Lembrei do seu aniversário de [ano]. Que noite!\"","\"Tô passando pra dizer que sinto sua falta. Só isso mesmo.\"","\"Me conta uma coisa boa que aconteceu com você esse ano?\"","\"Vou estar na sua região sábado. Topa um almoço?\"","\"Você continua [hábito engraçado]? Precisava saber.\""]],
+ ["q","A mensagem perfeita é a que você manda. A que fica no rascunho não aproxima ninguém."],
+ ["h2","Se a pessoa demorar a responder"],
+ ["p","Não leve para o lado pessoal. A rotina de todo mundo anda corrida. Se a resposta vier dias depois, siga a conversa normalmente, sem cobranças."],
+ ["tip","Dica de ouro","Áudios curtos e espontâneos costumam soar mais calorosos do que textos. Experimente um áudio de 20 segundos."]
+]},
+{id:2,c:"ciencia",a:"davi",d:"2026-10-25T18:30",min:6,v:38400,h:300,
+ t:"Abraço, risada e conversa: o que acontece no corpo quando estamos com amigos",
+ s:"Pesquisadores associam a convivência com substâncias ligadas ao bem-estar e à redução do estresse.",
+ img:IM("hug,laugh",402),
+ tl:["O contato afetivo é associado à liberação de ocitocina","Rir em grupo está ligado à sensação de bem-estar","O apoio social ajuda o corpo a lidar com o estresse"],
+ tags:["ciência","corpo","bem-estar"],
+ b:[
+ ["p","Você já saiu de um encontro com amigos se sentindo mais leve, mesmo depois de um dia ruim? Essa sensação tem sido estudada por cientistas há décadas — e parte da explicação está no nosso corpo."],
+ ["h2","Ocitocina, o 'hormônio do vínculo'"],
+ ["p","A ocitocina é frequentemente associada a gestos de afeto, como abraços e contato físico com pessoas queridas. Pesquisadores a relacionam à sensação de confiança e de proximidade, embora seus efeitos sejam mais complexos do que o apelido sugere."],
+ ["h2","Rir junto é diferente"],
+ ["p","Estudos conduzidos por grupos de psicologia evolutiva sugerem que a risada compartilhada está ligada à liberação de endorfinas, substâncias associadas ao prazer e ao alívio de desconfortos. Rimos muito mais quando estamos acompanhados do que sozinhos."],
+ ["q","Rir com alguém é uma das formas mais antigas de dizer: estou do seu lado."],
+ ["h2","O amortecedor do estresse"],
+ ["p","Ter alguém para conversar em momentos difíceis está associado a respostas de estresse mais equilibradas. Não por acaso, muitos especialistas tratam o apoio social como parte importante da saúde."],
+ ["tip","Importante","Os efeitos variam de pessoa para pessoa, e a ciência ainda estuda muitos desses mecanismos. Nada disso substitui acompanhamento profissional quando ele é necessário."]
+]},
+{id:3,c:"relatos",a:"bia",d:"2026-10-25T10:15",min:7,v:29800,h:380,
+ t:"Relato: conheci minha melhor amiga às 3 da manhã, num grupo de mães",
+ s:"Uma história (com nomes fictícios) sobre como a madrugada, o cansaço e um áudio desesperado viraram amizade.",
+ img:IM("mothers,friends",403),
+ tl:["Fases difíceis aproximam quem vive a mesma coisa","Grupos de apoio podem virar amizades reais","O primeiro encontro presencial selou o vínculo"],
+ tags:["maternidade","relato","grupos"],
+ b:[
+ ["p","Eram 3h12 da manhã quando a Carla — nome fictício — mandou um áudio chorando no grupo de mães do bairro. O bebê não dormia, ela não dormia, e a sensação era de que ninguém no mundo entendia. Eu estava acordada pelo mesmo motivo. Respondi com outro áudio, também chorando. E rimos."],
+ ["p","Daquela madrugada em diante, começamos a conversar todos os dias. Trocávamos dicas, desabafos e fotos dos nossos filhos com caras de sono. Três semanas depois, marcamos o primeiro passeio no parque, com carrinhos e olheiras."],
+ ["q","A gente não se escolheu. A madrugada escolheu a gente."],
+ ["h2","O que aprendi"],
+ ["ul",["Fases intensas criam vínculos rápidos e profundos","Pedir ajuda abre portas que a gente nem imagina","Amizade adulta pode nascer em qualquer lugar — até num grupo de bairro"]],
+ ["p","Hoje os nossos filhos estão na escola e brincam juntos. E a gente continua mandando áudio de madrugada. Só que agora é pra rir."]
+]},
+{id:4,c:"cultura",a:"leo",d:"2026-10-24T20:00",min:6,v:33500,h:320,
+ t:"Amizade nas telas: 6 filmes e séries para assistir com quem você ama",
+ s:"De clássicos a animações, obras que colocaram a amizade no centro da história.",
+ img:IM("cinema,popcorn",404),
+ tl:["Seleção mistura filmes e séries de épocas diferentes","Todos têm a amizade como tema central","Bons para assistir em grupo e conversar depois"],
+ tags:["filmes","séries","cultura"],
+ b:[
+ ["p","Histórias de amor romântico dominam as telas, mas algumas das narrativas mais marcantes do cinema e da TV são, no fundo, sobre amizade. Separamos seis obras para assistir — de preferência acompanhado."],
+ ["h2","A seleção"],
+ ["ul",["<b>Intocáveis (2011)</b> — o filme francês acompanha a amizade improvável entre um homem rico tetraplégico e seu cuidador.","<b>Conta Comigo (1986)</b> — quatro garotos partem numa jornada que marca o fim da infância.","<b>Toy Story (1995)</b> — a rivalidade entre dois brinquedos vira uma das amizades mais famosas da animação.","<b>Friends (1994–2004)</b> — a série acompanha um grupo de amigos em Nova York ao longo de dez temporadas.","<b>Thelma & Louise (1991)</b> — duas amigas numa viagem que muda tudo.","<b>O Senhor dos Anéis</b> — a lealdade entre Frodo e Sam é um dos pilares da trilogia."]],
+ ["q","Boas histórias de amizade nos lembram dos amigos que temos — e dos que queremos ser."],
+ ["tip","Sugestão","Que tal transformar a lista em um ciclo de sessões com os amigos? Cada um escolhe um título e leva a pipoca."]
+]},
+{id:5,c:"reflexoes",a:"nina",d:"2026-10-24T09:00",min:4,v:21700,h:260,
+ t:"Amigos de fase também valem: nem toda amizade precisa durar para sempre",
+ s:"Algumas pessoas chegam para um momento específico da vida. E isso não diminui a importância delas.",
+ img:IM("train,station",405),
+ tl:["Amizades de fase são comuns e legítimas","O fim de uma convivência não apaga o que foi vivido","Gratidão é uma boa forma de lidar com despedidas"],
+ tags:["reflexão","ciclos","despedidas"],
+ b:[
+ ["p","Tem gente que foi essencial no seu primeiro emprego, no intercâmbio, naquele ano difícil da faculdade. Pessoas com quem você dividia tudo — e com quem hoje troca, no máximo, um 'feliz aniversário' por ano."],
+ ["p","É comum sentir culpa por isso, como se a amizade tivesse 'fracassado'. Mas talvez ela tenha simplesmente cumprido o seu papel."],
+ ["q","Algumas amizades são estações. Elas passam, mas deixam o terreno diferente."],
+ ["p","Reconhecer as amizades de fase é também uma forma de liberdade: você pode guardar com carinho o que foi vivido, sem se cobrar por não manter tudo igual. E, quem sabe, a vida reaproxima vocês lá na frente."]
+]},
+{id:6,c:"bemestar",a:"davi",d:"2026-10-23T14:00",min:5,v:26100,h:340,
+ t:"Curtir não é conversar: como usar as redes sem esfriar suas amizades",
+ s:"Especialistas sugerem trocar a interação passiva por contatos mais diretos e significativos.",
+ img:IM("smartphone,social",406),
+ tl:["Interações passivas dão sensação de proximidade, mas aprofundam pouco","Mensagens diretas e chamadas criam mais conexão","Pequenas mudanças de hábito já fazem diferença"],
+ tags:["redes sociais","tecnologia","hábitos"],
+ b:[
+ ["p","Acompanhar a vida dos amigos pelas redes dá a impressão de que estamos por perto. Sabemos onde eles viajaram, o que comeram e quem foi ao aniversário. Mas, muitas vezes, faz meses que não conversamos de verdade."],
+ ["h2","O que dizem os especialistas"],
+ ["p","Pesquisadores de comportamento costumam diferenciar o uso passivo das redes (rolar o feed, curtir) do uso ativo (conversar, comentar, combinar encontros). O segundo tende a estar mais associado à sensação de conexão."],
+ ["h2","Pequenas trocas"],
+ ["ul",["Em vez de curtir o story, responda com uma pergunta","Troque um comentário por uma mensagem direta","Use as fotos como gancho para marcar um encontro","Faça uma chamada de vídeo por semana com alguém diferente"]],
+ ["tip","Desafio da semana","Escolha três amigos que você só acompanha pelas redes e mande uma mensagem pessoal para cada um."]
+]},
+{id:7,c:"dicas",a:"bia",d:"2026-10-22T11:30",min:5,v:18900,h:300,
+ t:"Como pedir desculpas a um amigo (de um jeito que funciona de verdade)",
+ s:"Reconhecer o erro, evitar justificativas e mostrar mudança: um passo a passo para reparar a relação.",
+ img:IM("talk,friends",407),
+ tl:["Um bom pedido de desculpas foca no outro, não em você","Evite o 'mas' depois do 'desculpa'","Mostre o que vai fazer diferente"],
+ tags:["conflitos","desculpas","comunicação"],
+ b:[
+ ["p","Toda amizade longa passa por pelo menos uma bola fora. O que define se a relação sai fortalecida ou abalada é, muitas vezes, a forma como o pedido de desculpas acontece."],
+ ["h2","O passo a passo"],
+ ["ol",["Escolha um momento calmo, de preferência pessoalmente ou por chamada","Diga claramente o que você fez, sem rodeios","Reconheça como isso afetou o outro","Evite justificativas como 'mas você também...'","Diga o que vai fazer diferente daqui pra frente","Dê tempo para a pessoa processar"]],
+ ["q","'Desculpa, mas...' não é desculpa. É defesa."],
+ ["tip","Lembre-se","Pedir desculpas não garante o perdão imediato. Respeitar o tempo do outro também faz parte do processo."]
+]},
+{id:8,c:"relatos",a:"bia",d:"2026-10-21T16:00",min:6,v:15400,h:360,
+ t:"Relato: depois da aposentadoria, seu Jorge montou um time de dominó — e uma família",
+ s:"Personagem fictício inspirado em tantas praças do Brasil mostra como a rotina pode recriar laços.",
+ img:IM("elderly,park",408),
+ tl:["A aposentadoria pode trazer isolamento","Encontros fixos ajudam a criar novos laços","A praça virou ponto de apoio para todo o grupo"],
+ tags:["terceira idade","comunidade","relato"],
+ b:[
+ ["p","Quando se aposentou, seu Jorge — personagem desta crônica — descobriu que quase todos os seus amigos eram colegas de trabalho. Sem o escritório, os dias ficaram longos e silenciosos."],
+ ["p","Foi a esposa quem sugeriu que ele levasse o velho jogo de dominó para a praça do bairro. No primeiro dia, ninguém apareceu. No segundo, um vizinho sentou para olhar. Na terceira semana, já eram seis."],
+ ["q","Eu fui à praça procurar parceiro de jogo. Achei irmãos."],
+ ["p","Hoje o grupo se encontra de segunda a sexta, às 15h. Comemoram aniversários, fazem vaquinha quando alguém precisa e já organizaram até uma excursão para o litoral."]
+]}
+];
+
+const QUOTES=[
+ {q:"Amigo é coisa pra se guardar do lado esquerdo do peito.",a:"Inspirado na canção popular brasileira",c:"var(--yellow)"},
+ {q:"A amizade duplica as alegrias e divide as tristezas.",a:"Provérbio",c:"var(--teal)"},
+ {q:"Um amigo é alguém que vê você por inteiro e fica mesmo assim.",a:"Conexão",c:"var(--pink)"}
+];
+
+const STORIES=[
+ {k:"dicas",n:"5 dicas",e:"💡",bg:"var(--yellow)",s:[["💬","Mande uma mensagem hoje","Sem motivo especial. Só porque lembrou."],["📅","Marque com data","'Qualquer dia' nunca chega."],["👂","Escute mais do que fala","Perguntas abertas aproximam."],["🎂","Anote os aniversários","Lembrar é uma forma de cuidar."],["🫶","Apareça nos dias difíceis","É quando mais importa."]]},
+ {k:"ciencia",n:"Ciência",e:"🔬",bg:"#7fe0d8",s:[["🧠","~150","É o número de relações estáveis sugerido pelo antropólogo Robin Dunbar."],["😂","Rir junto","Rimos bem mais acompanhados do que sozinhos."],["⏳","Tempo","Amizades próximas precisam de muitas horas de convivência."]]},
+ {k:"quiz",n:"Você sabia?",e:"❓",bg:"#c9c0ff",s:[["🌍","30 de julho","É o Dia Internacional da Amizade, segundo a ONU."],["🇧🇷","20 de julho","É a data mais popular do Dia do Amigo no Brasil."],["🎉","18 de abril","É o Dia Nacional do Amigo no Brasil."]]},
+ {k:"frase",n:"Frases",e:"✨",bg:"#ffb3a3",s:[["✨","Amizade não se cobra. Se cultiva.",""],["🌱","Amigos são a família que a gente escolhe.","Ditado popular"],["☕","Um café resolve quase tudo. Um amigo resolve o resto.",""]]},
+ {k:"desafio",n:"Desafio",e:"🏆",bg:"#9ff0bf",s:[["1️⃣","Segunda","Mande um áudio para um amigo antigo."],["2️⃣","Quarta","Elogie alguém sinceramente."],["3️⃣","Sexta","Marque um encontro presencial."]]}
+];
+
+/* ================= UTIL ================= */
+const $=s=>document.querySelector(s);
+const app=$("#app");
+const st={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pic=(src,n,alt,style="")=>`<img src="${src}" alt="${esc(alt)}" loading="lazy" style="${style}" onerror="this.onerror=null;this.src='${FB(n)}'">`;
+const badge=c=>`<span class="badge" style="background:${CAT[c].c}">${CAT[c].e} ${CAT[c].n}</span>`;
+const av=(k,size)=>`<span class="mini-av" style="background:${AU[k].c}${size?`;width:${size}px;height:${size}px`:""}">${AU[k].i}</span>`;
+const rel=iso=>{const m=(Date.now()-new Date(iso))/6e4;if(m<0)return new Date(iso).toLocaleDateString("pt-BR");if(m<60)return"agora mesmo";const h=Math.floor(m/60);if(h<24)return`há ${h}h`;const d=Math.floor(h/24);return d<7?`há ${d}d`:new Date(iso).toLocaleDateString("pt-BR",{day:"2-digit",month:"short"})};
+const full=iso=>new Date(iso).toLocaleDateString("pt-BR",{day:"numeric",month:"long",year:"numeric"})+" às "+new Date(iso).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2300)};
+const views=n=>n>=1000?(n/1000).toFixed(1).replace(".",",")+" mil":n;
+
+/* ================= NAVEGAÇÃO ================= */
+const TABS=[["tudo","Tudo","var(--ink)"],...Object.entries(CAT).map(([k,v])=>[k,v.n,v.c]),["mural","Mural de recados","var(--coral)"],["sobre","Sobre","var(--muted)"]];
+$("#snav").innerHTML=TABS.map(([k,n,c])=>`<button data-k="${k}" onclick="go('${k}')"><span class="dot" style="background:${c}"></span>${n}</button>`).join("");
+$("#mtabs").innerHTML=TABS.map(([k,n])=>`<button data-k="${k}" onclick="go('${k}')">${n}</button>`).join("");
+function go(k){location.hash=k}
+function openPost(id){location.hash="post/"+id}
+function find(q){location.hash="busca/"+encodeURIComponent(q)}
+let sortBy="recentes";
+
+/* ================= COMPONENTES ================= */
+const card=p=>`<article class="card" onclick="openPost(${p.id})">
+  ${pic(p.img,p.id,p.t,`height:${p.h||280}px`)}
+  <div class="tx">${badge(p.c)}<h3>${p.t}</h3><p>${p.s}</p>
+  <div class="meta">${av(p.a)} ${AU[p.a].n.split(" ")[0]} · ${rel(p.d)} · ${p.min} min</div></div></article>`;
+const qcard=(q,extra="")=>`<div class="card qcard" style="background:${q.c};${extra}"><p class="q">“${q.q}”</p><small>— ${q.a}</small></div>`;
+
+function grid(list){
+  if(!list.length)return`<div class="empty">Nada por aqui ainda 🌱</div>`;
+  const out=[];list.forEach((p,i)=>{out.push(card(p));if(i===1)out.push(qcard(QUOTES[0]));if(i===4)out.push(qcard(QUOTES[1]));if(i===6)out.push(qcard(QUOTES[2]))});
+  return`<div class="masonry">${out.join("")}</div>`;
+}
+const sorted=l=>[...l].sort(sortBy==="recentes"?(a,b)=>new Date(b.d)-new Date(a.d):(a,b)=>b.v-a.v);
+function setSort(s){sortBy=s;render(true)}
+
+function saudacao(){const h=new Date().getHours();return h<12?"Bom dia":h<18?"Boa tarde":"Boa noite"}
+function topline(title){
+  return`<div class="topline"><div class="hello">${new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})}<b>${title}</b></div>
+  <form class="sbar" onsubmit="event.preventDefault();const v=this.q.value.trim();if(v)find(v)"><input name="q" placeholder="Buscar textos, temas..." aria-label="Buscar"><button>Buscar</button></form></div>`;
+}
+
+/* ================= PÁGINAS ================= */
+function home(){
+  const f=POSTS.find(p=>p.top);
+  const seen=st.get("cx_seen",[]);
+  return topline(`${saudacao()}! Que tal cuidar de uma amizade hoje? 💛`)+`
+  <div class="stories">${STORIES.map((s,i)=>`<button class="story ${seen.includes(i)?"seen":""}" onclick="openStory(${i})"><span class="ring"><span class="in" style="background:${s.bg}">${s.e}</span></span>${s.n}</button>`).join("")}</div>
+  <article class="feature" onclick="openPost(${f.id})">
+    <div class="ph">${pic(f.img,f.id,f.t)}</div>
+    <div class="tx">${badge(f.c)}<h1>${f.t}</h1><p>${f.s}</p>
+    <div class="meta">${av(f.a)} <b style="color:var(--ink)">${AU[f.a].n}</b> · ${rel(f.d)} · ${f.min} min · 👁 ${views(f.v)}</div></div>
+  </article>
+  <div class="filters"><h2>Últimos textos</h2>
+    <div class="sort"><button class="${sortBy==="recentes"?"on":""}" onclick="setSort('recentes')">Recentes</button><button class="${sortBy==="lidos"?"on":""}" onclick="setSort('lidos')">Mais lidos</button></div></div>
+  ${grid(sorted(POSTS.filter(p=>p.id!==f.id)))}`;
+}
+function catPage(c){
+  const l=sorted(POSTS.filter(p=>p.c===c));
+  return topline(`${CAT[c].e} ${CAT[c].n}`)+`<div class="filters"><h2>${l.length} texto${l.length!==1?"s":""}</h2>
+  <div class="sort"><button class="${sortBy==="recentes"?"on":""}" onclick="setSort('recentes')">Recentes</button><button class="${sortBy==="lidos"?"on":""}" onclick="setSort('lidos')">Mais lidos</button></div></div>${grid(l)}`;
+}
+function searchPage(q){
+  const t=q.toLowerCase();
+  const l=POSTS.filter(p=>(p.t+p.s+p.tags.join(" ")+JSON.stringify(p.b)).toLowerCase().includes(t));
+  return topline(`Resultados para “${esc(q)}”`)+`<div class="filters"><h2>${l.length} encontrado(s)</h2></div>${grid(l)}`;
+}
+
+/* ===== Mural ===== */
+const NOTE_COLORS=["#ffd23f","#7fe0d8","#ffb3a3","#c9c0ff","#9ff0bf","#ffc2df"];
+const DEFAULT_NOTES=[
+ {para:"Rê",de:"Lu",m:"Obrigada por ter atravessado a cidade só pra me levar sopa quando eu tava doente. Você é demais!",c:0,h:12},
+ {para:"Turma do 3ºB",de:"Fê",m:"20 anos de formatura e a gente ainda tem o mesmo grupo. Amo vocês!",c:1,h:30},
+ {para:"Gabi",de:"Tati",m:"Você foi a primeira pessoa que eu conheci quando mudei de cidade. Mudou tudo.",c:2,h:21},
+ {para:"Marcão",de:"Zé",m:"Valeu por todas as caronas e todas as conversas no trânsito. Melhor terapia.",c:3,h:9}
+];
+function muralPage(){
+  const notes=st.get("cx_notes",DEFAULT_NOTES);
+  return topline("📌 Mural de recados")+`
+  <p style="color:var(--muted);margin:-10px 0 20px">Deixe um recado público para um amigo. Os recados ficam salvos neste navegador.</p>
+  <form class="mural-form" onsubmit="event.preventDefault();addNote(this)">
+    <input name="para" required maxlength="30" placeholder="Para (ex: Ana)">
+    <input name="de" required maxlength="30" placeholder="De (seu nome)">
+    <textarea name="m" required maxlength="240" placeholder="Escreva seu recado..."></textarea>
+    <div class="colors">Cor: ${NOTE_COLORS.map((c,i)=>`<input type="radio" name="c" id="nc${i}" value="${i}" ${i===0?"checked":""}><label for="nc${i}" style="background:${c}"></label>`).join("")}
+    <button class="btn" style="margin-left:auto">Colar no mural</button></div>
+  </form>
+  <div class="masonry">${notes.map((n,i)=>`<div class="note" style="background:${NOTE_COLORS[n.c]};--r:${(i%3-1)*1.2}deg"><small style="margin:0 0 8px">Para: ${esc(n.para)}</small><p>${esc(n.m)}</p><small>— ${esc(n.de)}</small><button class="heart" onclick="likeNote(${i})">❤️ ${n.h}</button></div>`).join("")}</div>`;
+}
+function addNote(f){const n=st.get("cx_notes",DEFAULT_NOTES);n.unshift({para:f.para.value,de:f.de.value,m:f.m.value,c:+f.c.value,h:0});st.set("cx_notes",n);toast("Recado colado no mural 📌");render(true)}
+function likeNote(i){const n=st.get("cx_notes",DEFAULT_NOTES);n[i].h++;st.set("cx_notes",n);render(true)}
+
+function aboutPage(){
+  return`<div class="about"><span class="badge" style="background:var(--yellow)">✨ Sobre nós</span>
+  <h1 style="margin-top:14px">Um blog sobre a arte de ter (e ser) um bom amigo.</h1>
+  <p>O <b>Conexão</b> nasceu de uma pergunta simples: por que falamos tanto de amor romântico e tão pouco de amizade? Aqui você encontra dicas práticas, ciência explicada sem complicação, relatos e reflexões.</p>
+  <p>Alguns relatos usam personagens fictícios, sempre identificados no texto.</p>
+  <h2 class="fr" style="font-size:28px;margin-top:30px">Quem escreve</h2>
+  <div class="team">${Object.keys(AU).map(k=>`<div class="box"><div class="author">${av(k)}<div><b>${AU[k].n}</b><small>${AU[k].r}</small></div></div><p class="bio">${AU[k].bio}</p></div>`).join("")}</div>
+  <h2 class="fr" style="font-size:28px;margin-top:30px">Fale com a gente</h2>
+  <p>Tem uma história de amizade? Escreva para <b>ola@blogconexao.com.br</b>.</p></div>`;
+}
+
+/* ===== Matéria ===== */
+function body(b){let n=0;return b.map(([t,v,x])=>{
+  if(t==="p")return`<p>${v}</p>`;
+  if(t==="h2")return`<h2 id="h${n++}">${v}</h2>`;
+  if(t==="q")return`<blockquote>“${v}”</blockquote>`;
+  if(t==="ul")return`<ul>${v.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+  if(t==="ol")return`<ol>${v.map(i=>`<li>${i}</li>`).join("")}</ol>`;
+  if(t==="tip")return`<div class="tip"><b>${v}</b><p>${x}</p></div>`;
+}).join("")}
+const DEF_CM=[{n:"Camila",t:"há 3h",m:"Mandei a mensagem número 3 para uma amiga de escola. Ela respondeu em 2 minutos! 🥹"},{n:"Rodrigo",t:"ontem",m:"Texto leve e necessário. Salvei aqui."}];
+const EMO=[["love","😍","Amei"],["cry","🥹","Me emocionei"],["idea","💡","Útil"],["laugh","😂","Ri"]];
+function postPage(id){
+  const p=POSTS.find(x=>x.id===id); if(!p)return`<div class="empty">Texto não encontrado.</div>`;
+  const a=AU[p.a], hs=p.b.filter(x=>x[0]==="h2").map(x=>x[1]);
+  const r=st.get("cx_r_"+id,{love:20+id*4,cry:8+id,idea:14+id*2,laugh:3+id,me:null});
+  const cm=st.get("cx_c_"+id,DEF_CM);
+  const more=POSTS.filter(x=>x.id!==id).sort((x,y)=>(y.c===p.c)-(x.c===p.c));
+  const u=encodeURIComponent(location.href),tt=encodeURIComponent(p.t);
+  const saved=st.get("cx_saved",[]).includes(id);
+  return`<button class="back" onclick="history.length>1?history.back():go('tudo')">← Voltar</button>
+  <header class="art-hero">${pic(p.img,p.id,p.t)}<div class="tx">${badge(p.c)}<h1>${p.t}</h1><p>${p.s}</p></div></header>
+  <div class="art-wrap">
+    <div class="share-rail">
+      <span>Compartilhar</span>
+      <button title="WhatsApp" style="background:#25d366;color:#fff;border:0" onclick="window.open('https://wa.me/?text=${tt}%20${u}')">WA</button>
+      <button title="Facebook" style="background:#1877f2;color:#fff;border:0" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=${u}')">f</button>
+      <button title="X" style="background:#111;color:#fff;border:0" onclick="window.open('https://x.com/intent/tweet?text=${tt}&url=${u}')">X</button>
+      <button title="Copiar link" onclick="copyLink()">🔗</button>
+      <button title="Salvar" onclick="save(${id})">${saved?"🔖":"📑"}</button>
+    </div>
+    <article>
+      <div class="meta" style="margin:0 0 22px">${av(p.a)} <b style="color:var(--ink)">${a.n}</b> · ${full(p.d)} · ⏱ ${p.min} min de leitura · 👁 ${views(p.v)}</div>
+      <div class="tldr"><b>⚡ Resumo rápido</b><ol>${p.tl.map(x=>`<li>${x}</li>`).join("")}</ol></div>
+      <div class="content">${body(p.b)}</div>
+      <div class="tags">${p.tags.map(t=>`<a onclick="find('${t}')">#${t}</a>`).join("")}</div>
+      <p style="font-weight:700;margin-top:24px">Como esse texto te fez sentir?</p>
+      <div class="emojis">${EMO.map(([k,e,l])=>`<button class="${r.me===k?"on":""}" onclick="react(${id},'${k}')">${e} ${l} · ${r[k]}</button>`).join("")}</div>
+      <section class="cmts"><h3>Conversa (${cm.length})</h3>
+        <form onsubmit="event.preventDefault();comment(${id},this)"><input name="n" required maxlength="40" placeholder="Seu nome"><textarea name="m" required maxlength="600" placeholder="O que você achou? Conta pra gente..."></textarea><button class="btn" style="justify-self:start">Comentar</button></form>
+        ${cm.map(c=>`<div class="cmt"><span class="mini-av" style="background:var(--soft);color:var(--ink);width:38px;height:38px">${esc((c.n.trim()[0]||"?").toUpperCase())}</span><div><b>${esc(c.n)}</b><small>${c.t}</small><p>${esc(c.m)}</p></div></div>`).join("")}
+      </section>
+      <h3 class="fr" style="font-size:26px;margin:40px 0 16px">Continue lendo</h3>
+      <div class="carousel">${more.slice(0,5).map(card).join("")}</div>
+    </article>
+    <aside class="aside-col">
+      <div class="box"><h4>Quem escreveu</h4><div class="author">${av(p.a)}<div><b>${a.n}</b><small>${a.r}</small></div></div><p class="bio">${a.bio}</p></div>
+      ${hs.length?`<div class="box toc"><h4>Neste texto</h4>${hs.map((h,i)=>`<a onclick="document.getElementById('h${i}').scrollIntoView({behavior:'smooth',block:'center'})">${h}</a>`).join("")}</div>`:""}
+      ${qcard(QUOTES[id%QUOTES.length],"margin:0")}
+    </aside>
+  </div>`;
+}
+function react(id,k){const r=st.get("cx_r_"+id,{love:20+id*4,cry:8+id,idea:14+id*2,laugh:3+id,me:null});if(r.me===k){r[k]--;r.me=null}else{if(r.me)r[r.me]--;r[k]++;r.me=k}st.set("cx_r_"+id,r);render(true)}
+function comment(id,f){const l=st.get("cx_c_"+id,DEF_CM);l.unshift({n:f.n.value,t:"agora",m:f.m.value});st.set("cx_c_"+id,l);toast("Comentário publicado 💬");render(true)}
+function save(id){let s=st.get("cx_saved",[]);s=s.includes(id)?s.filter(x=>x!==id):[...s,id];st.set("cx_saved",s);toast(s.includes(id)?"Salvo nos favoritos 🔖":"Removido dos favoritos");render(true)}
+function copyLink(){(navigator.clipboard?navigator.clipboard.writeText(location.href):Promise.reject()).then(()=>toast("Link copiado 🔗")).catch(()=>toast(location.href))}
+
+/* ================= STORIES ================= */
+let sv={i:0,j:0,timer:null};
+function openStory(i){sv={i,j:0,timer:null};$("#sv").classList.add("open");showSlide();const seen=st.get("cx_seen",[]);if(!seen.includes(i)){seen.push(i);st.set("cx_seen",seen)}}
+function closeStory(){clearTimeout(sv.timer);$("#sv").classList.remove("open");if(location.hash.replace("#","")===""||location.hash==="#tudo")render(true)}
+function showSlide(){
+  clearTimeout(sv.timer);
+  const s=STORIES[sv.i],sl=s.s[sv.j];
+  $("#svCard").style.background=s.bg;
+  $("#svTitle").textContent=s.e+" "+s.n;
+  $("#svEmoji").textContent=sl[0];$("#svText").textContent=sl[1];$("#svSub").textContent=sl[2];
+  $("#svBars").innerHTML=s.s.map((_,k)=>`<span><i style="width:${k<sv.j?100:0}%"></i></span>`).join("");
+  const bar=$("#svBars").children[sv.j].firstChild;
+  requestAnimationFrame(()=>{bar.style.transition="width 4.5s linear";bar.style.width="100%"});
+  sv.timer=setTimeout(()=>storyStep(1),4500);
+}
+function storyStep(d){
+  const s=STORIES[sv.i];sv.j+=d;
+  if(sv.j<0){sv.j=0}
+  if(sv.j>=s.s.length){
+    if(sv.i<STORIES.length-1){sv.i++;sv.j=0;const seen=st.get("cx_seen",[]);if(!seen.includes(sv.i)){seen.push(sv.i);st.set("cx_seen",seen)}}
+    else return closeStory();
+  }
+  showSlide();
+}
+
+/* ================= RENDER ================= */
+function render(keep){
+  const h=decodeURIComponent(location.hash.slice(1))||"tudo";
+  let html,at=h,title="conexão — o blog da amizade";
+  if(h.startsWith("post/")){const id=+h.split("/")[1],p=POSTS.find(x=>x.id===id);html=postPage(id);at=p?p.c:"";if(p)title=p.t+" · conexão"}
+  else if(h.startsWith("busca/")){html=searchPage(h.slice(6));at="";title="Busca · conexão"}
+  else if(CAT[h]){html=catPage(h);title=CAT[h].n+" · conexão"}
+  else if(h==="mural"){html=muralPage();title="Mural de recados · conexão"}
+  else if(h==="sobre"){html=aboutPage();title="Sobre · conexão"}
+  else{html=home();at="tudo"}
+  app.innerHTML=html;document.title=title;
+  document.querySelectorAll("[data-k]").forEach(b=>b.classList.toggle("active",b.dataset.k===at));
+  if(!keep)scrollTo(0,0);
+}
+addEventListener("hashchange",()=>render());
+
+/* ================= EXTRAS ================= */
+function countdown(){
+  const now=new Date();let t=new Date(now.getFullYear(),6,20);
+  if(now>t)t=new Date(now.getFullYear()+1,6,20);
+  const d=Math.ceil((t-now)/864e5);
+  $("#countdown").innerHTML=`Faltam<b>${d} dias</b>para o Dia do Amigo (20/07) 🎉`;
+}
+function setDark(d){document.body.classList.toggle("dark",d);$("#darkIco").textContent=d?"☀️":"🌙";$("#darkBtnM").textContent=d?"☀️":"🌙";$("#darkBtn").firstElementChild.textContent=d?"Modo claro":"Modo escuro";st.set("cx_dark",d)}
+$("#darkBtn").onclick=()=>setDark(!document.body.classList.contains("dark"));
+$("#darkBtnM").onclick=()=>setDark(!document.body.classList.contains("dark"));
+setDark(st.get("cx_dark",false));
+addEventListener("scroll",()=>{
+  const m=document.documentElement.scrollHeight-innerHeight;
+  $("#progress").style.width=location.hash.startsWith("#post/")&&m>0?(scrollY/m*100)+"%":"0";
+  $("#up").style.display=scrollY>600?"block":"none";
+});
+$("#up").onclick=()=>scrollTo({top:0,behavior:"smooth"});
+addEventListener("keydown",e=>{if(!$("#sv").classList.contains("open"))return;if(e.key==="Escape")closeStory();if(e.key==="ArrowRight")storyStep(1);if(e.key==="ArrowLeft")storyStep(-1)});
+countdown();render();
+</script>
+</body>
+</html>
